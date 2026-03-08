@@ -1,3 +1,9 @@
+plugins {
+    id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
+    // Kotlin 2.0+ 使用独立的 Compose 编译器插件，不再需要 kotlinCompilerExtensionVersion
+    id 'org.jetbrains.kotlin.plugin.compose'
+}
 // ── 从 local.properties 读取机密配置（不进 git）────────────────
 import java.util.Properties
 def localProps = new Properties()
@@ -5,14 +11,6 @@ def localPropsFile = rootProject.file("local.properties")
 if (localPropsFile.exists()) {
     localPropsFile.withInputStream { localProps.load(it) }
 }
-
-plugins {
-    id 'com.android.application'
-    id 'org.jetbrains.kotlin.android'
-    // Kotlin 2.0+ 使用独立的 Compose 编译器插件，不再需要 kotlinCompilerExtensionVersion
-    id 'org.jetbrains.kotlin.plugin.compose'
-}
-
 android {
     namespace 'com.xc.quotewidget'
     compileSdk 36
