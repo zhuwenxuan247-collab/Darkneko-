@@ -1,0 +1,117 @@
+// ── 从 local.properties 读取机密配置（不进 git）────────────────
+import java.util.Properties
+def localProps = new Properties()
+def localPropsFile = rootProject.file("local.properties")
+if (localPropsFile.exists()) {
+    localPropsFile.withInputStream { localProps.load(it) }
+}
+
+plugins {
+    id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
+    // Kotlin 2.0+ 使用独立的 Compose 编译器插件，不再需要 kotlinCompilerExtensionVersion
+    id 'org.jetbrains.kotlin.plugin.compose'
+}
+
+android {
+    namespace 'com.xc.quotewidget'
+    compileSdk 36
+
+    defaultConfig {
+        applicationId "com.xc.quotewidget"
+        minSdk 26
+        targetSdk 36
+        versionCode 4
+        versionName "4.0"
+
+        // Telegram OAuth 回调 scheme（在 manifest 的 intent-filter 中同步声明）
+        manifestPlaceholders = [telegramCallbackScheme: "quotewidget"]
+
+        // BuildConfig 字段：从 local.properties 读取，CI 环境从 Secrets 注入
+        // 若文件中无对应 key，返回空字符串（App 启动后引导用户在设置页输入）
+        buildConfigField "String", "GOOGLE_CLIENT_ID",
+            "\"${localProps.getProperty('GOOGLE_CLIENT_ID', '')}\"" 
+        buildConfigField "String", "TELEGRAM_BOT_TOKEN",
+            "\"${localProps.getProperty('TELEGRAM_BOT_TOKEN', '')}\""
+        buildConfigField "String", "TELEGRAM_BOT_USERNAME",
+            "\"${localProps.getProperty('TELEGRAM_BOT_USERNAME', '')}\""
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            minifyEnabled false
+        }
+    }
+
+    buildFeatures {
+        buildConfig true
+        compose true
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+    kotlinOptions {
+        jvmTarget = '17'
+        // M3 Expressive API 仍处于 alpha，全局 opt-in
+        freeCompilerArgs += [
+            '-opt-in=androidx.compose.material3.ExperimentalMaterial3Api',
+            '-opt-in=androidx.compose.material3.ExperimentalMaterial3ExpressiveApi',
+        ]
+    }
+}
+
+dependencies {
+    // ── Compose BOM 2025.05.01（含 Material3 1.4.x Expressive） ──
+    def composeBom = platform('androidx.compose:compose-bom:2025.05.01')
+    implementation composeBom
+
+    // ── Material3 Expressive ──────────────────────────────────────
+    // 1.4.x 起正式包含 MotionScheme / ButtonGroup / FloatingToolbar 等
+    implementation 'androidx.compose.material3:material3'
+
+    // ── Compose 基础层 ────────────────────────────────────────────
+    implementation 'androidx.compose.ui:ui'
+    implementation 'androidx.compose.ui:ui-tooling-preview'
+    debugImplementation 'androidx.compose.ui:ui-tooling'
+    implementation 'androidx.compose.animation:animation'
+
+    // ── Navigation（登录 → 主界面跳转） ─────────────────────────
+    implementation 'androidx.navigation:navigation-compose:2.9.0'
+
+    // ── ViewModel + Lifecycle ──────────────────────────────────────
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:2.9.0'
+    implementation 'androidx.lifecycle:lifecycle-runtime-compose:2.9.0'
+
+    // ── Jetpack Glance（Widget 渲染） ──────────────────────────────
+    implementation 'androidx.glance:glance-appwidget:1.1.0'
+    implementation 'androidx.glance:glance-material3:1.1.0'
+
+    // ── Google Credential Manager（替代弃用的 Sign-In SDK） ───────
+    implementation 'androidx.credentials:credentials:1.5.0'
+    implementation 'androidx.credentials:credentials-play-services-auth:1.5.0'
+    // Google Identity Services（提供 GetGoogleIdOption）
+    implementation 'com.google.android.libraries.identity.googleid:googleid:1.1.1'
+
+    // ── Chrome Custom Tabs（Telegram OAuth 内嵌浏览器） ─────────
+    implementation 'androidx.browser:browser:1.8.0'
+
+    // ── 持久化（账号信息本地缓存） ────────────────────────────────
+    implementation 'androidx.datastore:datastore-preferences:1.1.4'
+
+    // ── Coroutines ────────────────────────────────────────────────
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.1'
+
+    // ── 基础 ──────────────────────────────────────────────────────
+    implementation 'androidx.core:core-ktx:1.16.0'
+    implementation 'androidx.appcompat:appcompat:1.7.0'
+    implementation 'androidx.activity:activity-compose:1.10.1'
+
+    // ── Coil（头像异步加载） ─────────────────────────────────────
+    implementation 'io.coil-kt:coil-compose:2.7.0'
+}

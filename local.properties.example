@@ -1,0 +1,26 @@
+# ── QuoteWidget 机密配置模板 ───────────────────────────────────────
+# 使用方式：
+#   1. 复制本文件为 local.properties（与本文件同目录，即项目根目录）
+#   2. 填入真实值
+#   3. local.properties 已被 .gitignore 排除，不会提交到 git
+#
+# GitHub Actions 用法：
+#   在仓库 Settings → Secrets and variables → Actions 中添加同名 Secret，
+#   workflow 的 env 块自动注入（见 .github/workflows/build.yml）
+# ─────────────────────────────────────────────────────────────────
+
+# Google OAuth 2.0 Client ID
+# 获取：Google Cloud Console → API 和服务 → 凭据 → 创建 OAuth 客户端 ID（Android 类型）
+# 格式：xxxxxxxxxxxxx.apps.googleusercontent.com
+GOOGLE_CLIENT_ID=
+
+# Telegram Bot Token（用于 HMAC-SHA256 hash 验证）
+# 获取：Telegram → @BotFather → /newbot → 复制 token
+# 格式：1234567890:ABCDEFxxxxxxxxxxxxxxxxxxxxxxxx
+# ⚠️  此 token 会被编译进 APK。仅适合个人 sideload 场景。
+#     如需公开发布，应改为后端验证并从 APK 中移除 token。
+TELEGRAM_BOT_TOKEN=
+
+# Telegram Bot 用户名（不含 @）
+# 获取：@BotFather → 选择你的 bot → 复制 username
+TELEGRAM_BOT_USERNAME=

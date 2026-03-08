@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!--
+        Activity 窗口主题。
+        使用 Theme.Material3 基底确保系统 UI（状态栏、导航栏）
+        与 MD3 Expressive 色彩系统联动。
+
+        windowBackground 设为透明，交由 Compose setContent 接管背景，
+        避免深色模式下出现白色闪屏（White flash on launch）。
+    -->
+    <style name="Theme.QuoteWidget" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- 沉浸式边到边（edge-to-edge），配合 Activity.enableEdgeToEdge() -->
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <!-- API 29+ 导航栏按钮颜色自适应 -->
+        <item name="android:enforceNavigationBarContrast" tools:targetApi="Q">false</item>
+    </style>
+</resources>
